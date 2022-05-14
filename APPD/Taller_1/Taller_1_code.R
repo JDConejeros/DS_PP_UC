@@ -6,7 +6,7 @@
 # José Daniel Conejeros - jdconejeros@uc.cl
 # Naim Bro -  naim.bro@gmail.com
 # Guía del curso: https://naimbro.github.io/programa_diplomado_2021.html
-# Talleres: https://www.dropbox.com/sh/wydiai5eilqi85w/AADBxa-AqgGGaYlGfCLEgC7ja?dl=0
+# Talleres: https://www.dropbox.com/s/qarbwm4g7ayjowt/Taller_1_code.R?dl=0
 # Tutorial Inicial: https://jdconejeros.shinyapps.io/Guia_inicial_R_DSPP/?_ga=2.215615251.544333766.1621133935-1633333738.1619907686
 ########################################################################/
 
