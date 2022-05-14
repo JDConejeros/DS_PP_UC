@@ -22,5 +22,3 @@
 # ; : Para escribir más de una función en la misma línea
 # Recomendación general: todo lo que tenga que ver con procesamiento, análisis de bases de datos, entre otros, 
 # deben ser sin tilde ni ñ. Te evitarás bastantes problemas. Además se recomienda en trabajar con minúsculas.
-
-
