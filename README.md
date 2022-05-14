@@ -18,16 +18,23 @@ Naim Bro & José D. Conejeros
 
 :pushpin:	 [Taller 1: Introducción a R](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_1).
 
+**Fecha: 14-05-2022**
+
 - :scroll: [Presentación](https://github.com/JDConejeros/DS_PP_UC/blob/main/APPD/Taller_1/Presentacion_t1.pdf)
 - :memo:[Código](https://www.dropbox.com/s/qarbwm4g7ayjowt/Taller_1_code.R?dl=0)
 - :bar_chart: [Datos](https://www.dropbox.com/scl/fo/1208d72kq4cy0kcl2hr38/h?dl=0&rlkey=lbu2i58fkk5jwasxt4lvev2hw)
 
-Taller 2: [Procesamiento de datos con `dplyr`](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_2).
+Taller 2: [Procesamiento de datos con `dplyr` +  Web scraping y APIs](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_2).
 
-Taller 3: [Procesamiento de datos con `ggplot2`](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_3).
+**Fecha: 28-05-2022**
 
-Taller 4: [Herramientas para la programación funcional `purrr`](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_4).
+Taller 3: [Procesamiento de datos con `ggplot2` + Análisis de datos geográficos ](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_3).
 
+**Fecha: 25-06-2022**
+
+Taller 4: [Herramientas para la programación funcional `purrr` + Análisis de redes sociales y texto](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_4).
+
+**Fecha: 09-07-2022**
 
 ## Links Complementarios
 
