@@ -1,4 +1,4 @@
-# Talleres Diplomado en Ciencia de Datos para políticas públicas UC
+# Talleres Ciencia de Datos para políticas públicas UC
 
 **José Daniel Conejeros** :mailbox_with_no_mail: jdconejeros@uc.cl
 
