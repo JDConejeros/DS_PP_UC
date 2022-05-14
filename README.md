@@ -15,7 +15,7 @@ Naim Bro & José D. Conejeros
 
 [Guía inicial de R y RStudio]() 
 
-* :pushpin:	 [Taller 1: Introducción a R]().
+* :pushpin:	 [Taller 1: Introducción a R](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_1).
 
 Algunos enlaces que puede ser útiles:
 
