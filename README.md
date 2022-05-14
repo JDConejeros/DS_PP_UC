@@ -15,18 +15,18 @@ Naim Bro & José D. Conejeros
 
 [Guía inicial de R y RStudio](https://jdconejeros.shinyapps.io/Guia_inicial_R_2022/) 
 
-* :pushpin:	 [Taller 1: Introducción a R](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_1).
+:pushpin:	 [Taller 1: Introducción a R](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_1).
 
 - :scroll: [Presentación]()
 - :memo::pencil: [Código](https://www.dropbox.com/s/qe934h7qmj9ggfn/Taller_1_code.R?dl=0)
 - :bar_chart: [Datos](https://www.dropbox.com/scl/fo/1208d72kq4cy0kcl2hr38/h?dl=0&rlkey=lbu2i58fkk5jwasxt4lvev2hw)
 
-* Taller 2: [Procesamiento de datos con `dplyr`](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_2).
-* Taller 3: [Procesamiento de datos con `ggplot2`](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_3).
-* Taller 4: [Herramientas para la programación funcional `purrr`](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_4).
+Taller 2: [Procesamiento de datos con `dplyr`](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_2).
+Taller 3: [Procesamiento de datos con `ggplot2`](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_3).
+Taller 4: [Herramientas para la programación funcional `purrr`](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_4).
 
 
-## Links útiles
+## Links Complementarios
 
 **Taller 1:**
 
@@ -44,7 +44,7 @@ Para los que alguna vez fuimos nuevos en RStudio sirve bastante ver las pregunta
 + [RStudio Community](https://community.rstudio.com/)
 + [Stackoverflow](https://stackoverflow.com/questions/tagged/r)
 
-## Otros enlaces
+## Otros enlaces de interés
 
 + [Compendio de links útiles](https://www.lecy.info/r-for-public-policy)
 + [Conectarse a Github desde R](https://happygitwithr.com/rstudio-git-github.html#clone-the-new-github-repository-to-your-computer-via-rstudio)
