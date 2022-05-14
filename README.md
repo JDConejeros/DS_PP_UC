@@ -18,7 +18,7 @@ Naim Bro & José D. Conejeros
 
 :pushpin:	 [Taller 1: Introducción a R](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_1).
 
-- :scroll: [Presentación]()
+- :scroll: [Presentación](https://github.com/JDConejeros/DS_PP_UC/blob/main/APPD/Taller_1/Presentacion_t1.pdf)
 - :memo::pencil: [Código](https://www.dropbox.com/s/qe934h7qmj9ggfn/Taller_1_code.R?dl=0)
 - :bar_chart: [Datos](https://www.dropbox.com/scl/fo/1208d72kq4cy0kcl2hr38/h?dl=0&rlkey=lbu2i58fkk5jwasxt4lvev2hw)
 
