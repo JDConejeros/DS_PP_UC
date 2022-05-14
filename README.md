@@ -22,7 +22,9 @@ Naim Bro & José D. Conejeros
 - :bar_chart: [Datos](https://www.dropbox.com/scl/fo/1208d72kq4cy0kcl2hr38/h?dl=0&rlkey=lbu2i58fkk5jwasxt4lvev2hw)
 
 Taller 2: [Procesamiento de datos con `dplyr`](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_2).
+
 Taller 3: [Procesamiento de datos con `ggplot2`](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_3).
+
 Taller 4: [Herramientas para la programación funcional `purrr`](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_4).
 
 
