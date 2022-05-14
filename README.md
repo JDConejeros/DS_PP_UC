@@ -1,4 +1,5 @@
-# Talleres Ciencia de Datos para políticas públicas UC
+# Ciencia de Datos para políticas públicas UC
+# Talleres prácticos en `R`
 
 **José Daniel Conejeros** :mailbox_with_no_mail: jdconejeros@uc.cl
 
