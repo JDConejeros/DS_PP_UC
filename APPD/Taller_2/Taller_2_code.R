@@ -385,9 +385,9 @@ library(geniusr)
 # Primero tenemos que configurar una cuenta de desarrollador
 # https://developer.spotify.com/dashboard/
 
-# Extramoe los datos de la cuenta 
-Sys.setenv(SPOTIFY_CLIENT_ID = 'a09106ed23f04ef9aa33a7f565ecaf43')
-Sys.setenv(SPOTIFY_CLIENT_SECRET = 'f2c4441efbff4abea5d7fc2f5e0bb535')
+# Extramoe los datos de la cuenta (hay que crearse una cuenta de desarrollador)
+Sys.setenv(SPOTIFY_CLIENT_ID = ' ')
+Sys.setenv(SPOTIFY_CLIENT_SECRET = ' ')
 
 # Generamos token de acceso
 access_token <- get_spotify_access_token()
