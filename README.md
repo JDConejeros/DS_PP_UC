@@ -43,7 +43,7 @@ Taller 4: [Herramientas para la programación funcional `purrr` + Análisis de r
 
 ## Links Complementarios
 
-**Taller 1:**
+**Talleres:**
 
 - [R para Ciencia de Datos](https://es.r4ds.hadley.nz/): Libro base para el uso de R, aquí podrán ver que la plataforma de Rstudio no es solo para el análisis estadístico, sino que de procesamiento de datos y reporte (versión en español).
 
