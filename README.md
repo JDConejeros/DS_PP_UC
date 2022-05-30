@@ -41,6 +41,10 @@ Taller 4: [Herramientas para la programación funcional `purrr` + Análisis de r
 **Fecha: 09-07-2022**
 
 
+## Evaluaciones:
+
+- [Desafío `R`: Enunciado y materiales](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Evaluaciones).
+
 ## Links Complementarios
 
 **Talleres:**
