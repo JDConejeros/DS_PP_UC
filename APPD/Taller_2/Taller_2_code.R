@@ -35,23 +35,39 @@ options(max.print = 99999999) # Nos permite ver más resultados en la consola.
 # Revise la carpeta data: ¿Cómo podemos leer bases de datos de manera simultánea? 
 
 # Podemos trabajar guardando nuestro directorio en un objeto
+directorio <- getwd()
+directorio <- paste0(directorio, "/data") 
+directorio
 
 # Veamos los archivos de ese directorio
+list.files(directorio, pattern = "*.csv")
+list.files(directorio, pattern = "*.rds")
 
 # ¿Cuál es la diferencia entre .csv y .rds?
 # Guardemos los nombres de archivos en un vector de caracteres
-
+archivos <- list.files(directorio, pattern = "*.csv")
 
 # Vamos a aplicar la lectura de datos a través de la librería rio 
+install.packages("rio")
+library(rio)
 
 # Podemos leer las tres bases de datos de forma simultánea con un bucle for
-
+inicio <- Sys.time() # Contemos el tiempo
+for(i in archivos){
+  df <- rio::import(paste0(directorio, "/", i))
+  
+  name_df <- paste0("rendimiento", stringr::str_extract(i, pattern = "_20[0-2][0-9]")) 
+  
+  assign(name_df, df) # Asignamos
+}
 # Tiempo de ejecución
-
+Sys.time()-inicio
 
 # También podemos usar las funciones maps de la librería purrr (taller 4)
 
 # Limpiamos un poco la memoria 
+dfs <-  as.list(ls(pattern = "rend*")) # Vector con nombres de objetos con cierto patrón
+rm(list=ls()[! ls() %in% c(dfs, "directorio", "archivos")])
 
 #########################z###############################################/
 # 2. Librerias de Tidyverse -------------
@@ -77,25 +93,50 @@ install.packages("tidyverse")
 # La librería dplyr cuenta con funciones para la exploración y manipulación de datos
 library(dplyr) 
 # Uso del operador pipe %>% 
-
+rendimiento_2019 %>% glimpse() # Vista previa 
+rendimiento_2019 %>% head()    # Primera 6 observaciones
+rendimiento_2019 %>% colnames() # Nombres columnas/variables
+rendimiento_2019 %>% select(AGNO,NOM_COM_RBD,MRUN) %>% head()
 
 # Primer problema: a veces es un poco problemático trabajar con variables 
 # que cuentan mayúsculas o carateres especiales: "ñ", "´".
 # Opten por estandarizar el lenguaje
 
 # Veamos los nombres de todas las variables en todos los datos
+for(i in dfs){
+  print(colnames(get(i)))
+}
 
 # Transforma las variables en minúsculas
 library(stringr)
+colnames(rendimiento_2019) <- str_to_lower(colnames(rendimiento_2019))
+rendimiento_2019 %>% colnames()
 
 # También existen alternativas
 # tolower de R base 
+colnames(rendimiento_2020) <- tolower(colnames(rendimiento_2020))
+rendimiento_2020 %>% colnames()
 
 # librería janitor
 install.packages("janitor")
 library(janitor)
+colnames(rendimiento_2021) <- janitor::make_clean_names(names(rendimiento_2021))
+rendimiento_2021 %>% colnames()
 
 # Ejercicio propuesto 1: aplicar el for para hacer esto en todas las bases de datos
+dfs
+for(i in dfs){
+  data <- get(i) # Cargo los datos
+  
+  colnames(data) <- str_to_lower(colnames(data)) # Ajusta los nombres a minuscula
+  print(colnames(data)) # Vemos el resultado 
+  
+  data <- data %>% mutate(ajustada="Si") # Vamos a generar la variable auxiliar para mirar modificaciones
+  
+  assign(i, data) # Dejamos en el enviroment el resultado
+}
+
+rendimiento_2019[, c("mrun", "ajustada")]
 
 ########################################################################/
 # 4. Procesamiento de datos  -------------
@@ -103,25 +144,41 @@ library(janitor)
 
 ## 4.1 Select -------------
 # Seleccionamos columnas/variables
+data1 <- rendimiento_2019 %>% select(23:26,10:14)
+data2 <- rendimiento_2019 %>% select("mrun", "agno", "cod_reg_rbd":"nom_com_rbd")
+data3 <- rendimiento_2019 %>% select("mrun", "rbd", "cod_depe", "cod_depe2", "cod_ense2", "asistencia")
 
+data1 %>% colnames()
+data2 %>% colnames()
+data3 %>% colnames()
 
 ## 4.2 Rename -------------
 
-
+data2 <- data2 %>% rename(id=mrun)
+data3 <- data3 %>% rename(folio=mrun)
 
 ## 4.3 Filter -------------
 # Filtramos por una condición 
-
-
+table(data1$gen_alu) # 1: Masculino // 2: Femenino // 0: ¿?
+data_m <- data1 %>% filter(gen_alu==1) # Masculino
+data_f <- data1 %>% filter(gen_alu==2) # Femenino
 
 # Generamos dos condicionnes:
+data_asistencia <- data3 %>% filter(asistencia>=90 & rbd==3442)
+data_asistencia2 <- data3 %>% filter(asistencia>=90 | rbd==3442)
 
-
+nrow(data_asistencia) # N de la muestra
+nrow(data_asistencia2) # N de la muestra
 
 ## 4.4 Arrange -------------
 # Ordenamos la BBDD con una variable 
+head(data2, n=15)
 
+data_arrange <- data2 %>% arrange(cod_reg_rbd)  # Por defecto el orden es creciente
+head(data_arrange, n=15)
 
+data_arrange2 <- data2 %>% arrange(desc(cod_reg_rbd)) # Decreciente
+head(data_arrange2, n=15)
 
 ########################################################################/
 # 5. Fundir BBDD -------------
@@ -130,18 +187,27 @@ library(janitor)
 ## 5.1 Append BBDD  -----------------------------------
 
 # Dplyr
+glimpse(data_m)
+glimpse(data_f)
 
+data_append <- data_m %>% add_row(data_f) 
+glimpse(data_append )
 
 # R Base:
-
+data_append2 <- rbind(data_m, data_f)
 
 # ¿Qué pasa cuando no tenemos la misma cantidad de variable 
+data_m2 <- data_m %>% select(!gen_alu)
 
+data_append <- data_m2 %>% add_row(data_f) 
+data_append2 <- rbind(data_m2, data_f)
 
 # Ya hay una función programada para este escenario
-
+data_append3 <- data_m2 %>% bind_rows(data_f) 
 
 # Veamos que realizo la función para solucionar el problema
+data_append3[(1709290:1709310),]
+data_append3[(1709290:1709310),"gen_alu"]
 
 ## 5.2 Join /Antijoin  -----------------------------------
 
@@ -176,7 +242,7 @@ x %>% anti_join(y, by=c("idx"="idy"))
 # Para el estudio personal
 x %>% semi_join(y, by=c("idx"="idy"))
 
-test_data <- x %>% nest_join(y, by=c("idx"="idy"))
+test <- x %>% nest_join(y, by=c("idx"="idy"))
 
 ########################################################################/
 # 6. Procesamiento de variables -------------
@@ -185,17 +251,43 @@ test_data <- x %>% nest_join(y, by=c("idx"="idy"))
 rm(list=ls()[! ls() %in% c(dfs, "directorio", "archivos")])
 
 ## 6.1 Generemos una variable continua  ---------------------------
+table(rendimiento_2019$prom_gral)
+class(rendimiento_2019$prom_gral)
 
+rendimiento_2019 <- rendimiento_2019 %>% 
+  mutate(promedio_ajustado=prom_gral,
+         promedio_ajustado=str_replace(promedio_ajustado, pattern = ",", replacement = "."),
+         promedio_ajustado=as.numeric(promedio_ajustado),
+         promedio_ajustado=if_else(promedio_ajustado==0, NA_real_, promedio_ajustado),
+  )
 
+table(rendimiento_2019$promedio_ajustado, useNA = "ifany")
+
+summary(rendimiento_2019$promedio_ajustado) # Vemos el resultado
+rendimiento_2019 %>% select(mrun, prom_gral, promedio_ajustado) %>% head()
 
 ## 6.2 Generemos un factor (categórica)  ---------------------------
 
 install.packages("sjPlot")
 library(sjPlot)
-
+view_df(rendimiento_2019) # Nos permite explorar la metadata
 
 install.packages("labelled")
 library(labelled) # Manejador de etiquetas
+var_label(rendimiento_2019$gen_alu)
+set_variable_labels(rendimiento_2019$gen_alu)
+
+rendimiento_2019 <- rendimiento_2019 %>% mutate(genero=as.numeric(gen_alu)-1,
+                                                genero=factor(genero, 
+                                                              levels=c(0,1), 
+                                                              labels=c("Masculino", "Femenino")))
+
+var_label(rendimiento_2019$genero) <- "Género del estudiante"
+var_label(rendimiento_2019$genero)
+set_variable_labels(rendimiento_2019$genero)
+
+rendimiento_2019 %>% select(gen_alu, genero) %>% head()
+table(rendimiento_2019$gen_alu, rendimiento_2019$genero, useNA = "ifany")
 
 ## 6.3 A partir del uso de condicionales  ---------------------------
 
@@ -209,16 +301,50 @@ summary(is.na(rendimiento_2019$promedio_ajustado)) # Veamos los missing
 # 25% "superior" (3)
 
 ### 6.3.1 if_else()  ---------------------------
+quantile(rendimiento_2019$promedio_ajustado, probs = 0.25, na.rm = T)
+quantile(rendimiento_2019$promedio_ajustado, probs = 0.75, na.rm = T)
 
+rendimiento_2019 <- rendimiento_2019 %>% 
+  mutate(prom_cat = if_else(promedio_ajustado<=quantile(promedio_ajustado, probs = 0.25, na.rm = T), 1, 
+                            if_else(promedio_ajustado>quantile(promedio_ajustado, probs = 0.25, na.rm = T) &
+                                      promedio_ajustado<quantile(promedio_ajustado, probs = 0.75, na.rm = T),2,
+                                    if_else(promedio_ajustado>=quantile(promedio_ajustado, probs = 0.75, na.rm = T), 3, NA_real_))))
 
+# Etiquetamos la variable
+var_label(rendimiento_2019$prom_cat) <- "Grupos de rendimiento académico" 
+
+# Validamos 
+table(rendimiento_2019$prom_cat, useNA = "ifany")
+aggregate(rendimiento_2019$promedio_ajustado~rendimiento_2019$prom_cat, FUN=summary)
+rendimiento_2019 %>% select(promedio_ajustado, prom_cat) %>% head(n=20)
 
 ### 6.3.2 case_when()  ---------------------------
+rendimiento_2019 <- rendimiento_2019 %>% 
+  mutate(prom_cat2 =  case_when(promedio_ajustado <= quantile(promedio_ajustado, probs = 0.25, na.rm = T)    ~ 1, 
+                                promedio_ajustado > quantile(promedio_ajustado, probs = 0.25, na.rm = T) & 
+                                  promedio_ajustado < quantile(promedio_ajustado, probs = 0.75, na.rm = T) ~ 2, 
+                                promedio_ajustado >= quantile(promedio_ajustado, probs = 0.75, na.rm = T)    ~ 3, 
+                                TRUE ~ NA_real_))
 
-
+# Validamos 
+table(rendimiento_2019$prom_cat, rendimiento_2019$prom_cat2, useNA = "ifany")
+rendimiento_2019 %>% select(promedio_ajustado, prom_cat, prom_cat2) %>% head(n=20)
 
 ### 6.3.1 Indexación  ---------------------------
+rendimiento_2019$prom_cat3[rendimiento_2019$promedio_ajustado <= quantile(rendimiento_2019$promedio_ajustado, probs = 0.25, na.rm = T)] <- 1
+rendimiento_2019$prom_cat3[rendimiento_2019$promedio_ajustado >  quantile(rendimiento_2019$promedio_ajustado, probs = 0.25, na.rm = T) & 
+                             rendimiento_2019$promedio_ajustado < quantile(rendimiento_2019$promedio_ajustado, probs = 0.75, na.rm = T)] <- 2
+rendimiento_2019$prom_cat3[rendimiento_2019$promedio_ajustado >= quantile(rendimiento_2019$promedio_ajustado, probs = 0.75, na.rm = T)] <- 3
 
+table(rendimiento_2019$prom_cat, rendimiento_2019$prom_cat3, useNA = "ifany")
+rendimiento_2019 %>% select(promedio_ajustado, prom_cat, prom_cat2, prom_cat3) %>% head(n=20)
 
+# Eliminamos variables creadas
+rendimiento_2019$prom_cat2 <- NULL
+rendimiento_2019$prom_cat3 <- NULL
+
+# Podemos guardar nuestros ajustes 
+saveRDS(rendimiento_2019, "data/rendimiento19.rds")
 
 ########################################################################/
 # 7. Test de código -------------
@@ -260,9 +386,40 @@ library(geniusr)
 # https://developer.spotify.com/dashboard/
 
 # Extramoe los datos de la cuenta 
-Sys.setenv(SPOTIFY_CLIENT_ID = '')
-Sys.setenv(SPOTIFY_CLIENT_SECRET = '')
+Sys.setenv(SPOTIFY_CLIENT_ID = 'a09106ed23f04ef9aa33a7f565ecaf43')
+Sys.setenv(SPOTIFY_CLIENT_SECRET = 'f2c4441efbff4abea5d7fc2f5e0bb535')
 
+# Generamos token de acceso
+access_token <- get_spotify_access_token()
+
+# Extracciones de información 
+radiohead <- get_artist_audio_features('radiohead')
+radiohead_top <- get_artist_top_tracks(unique(radiohead$artist_id),
+                                       market = "CL", # ISO 3166-1 alfa-2 
+                                       authorization = access_token,
+                                       include_meta_info = TRUE)
+
+top50_chile <- get_playlist_tracks(playlist_id="37i9dQZEVXbL0GavIqMTeb", 
+                                   fields = c("track.name", "track.artists(name)",
+                                   ))
+top50_chile$country <- "Chile"
+
+top50_hongkong <- get_playlist_tracks("37i9dQZEVXbLwpL8TjsxOG", fields = c("track.name", "track.artists(name)"))
+top50_hongkong$country <- "HongKong"
+
+list_plist <- list(top50_chile, top50_hongkong)
+
+all_plist <- tibble(track.artists = NA, track.name = NA, country = NA)
+
+for(i in list_plist){
+  all_plist <- all_plist %>% bind_rows(i)
+}
+
+get_my_top_artists_or_tracks(type = 'artists', time_range = 'long_term', limit = 5) %>% 
+  select(name, genres) %>% 
+  rowwise %>% 
+  mutate(genres = paste(genres, collapse = ', ')) %>% 
+  ungroup()
 
 # En el próximo taller: extracción de datos a partir de la API de google MAPS.
 

@@ -370,6 +370,7 @@ data <- read.csv("APPD/Taller_1/data/simce2m2016_extracto.csv")
 
 # Dada la heterogeneidad de nuestro objeto lo vamos a transformar en un marco de datos
 typeof(data)
+class(data)
 data <- as.data.frame(data)
 
 dim(data)   # Observaciones y variables
@@ -386,16 +387,17 @@ tail(data[4,])
 tail(data)
 tail(15,15)
 tail(1:20, 15)
+tail(1:20, 15)
 
 data[,-6] # ¿Qué nos imprime esto?
-data[,c(1, 3)] # Veamos la primera y última fila de una BBDD [fila, columna]
+data[,c(1,3)] # Veamos la primera y tercera columna de una BBDD [fila, columna]
 data[,c("idalumno","ptje_mate2m_alu")] # ¿Cuál es la diferencia?
 data$idalumno
 print(data$idalumno)
 
-data[data$cod_depe2 == "Municipal" &  data$ptje_mate2m_alu<100,] # Usemos condiciones 
+data[data$cod_depe2 == "Municipal" &  data$ptje_mate2m_alu>100,] # Usemos condiciones 
 
-data[data$ptje_mate2m_alu  %in% c(100, 120),] # Comparar con varios valores
+data[data$ptje_mate2m_alu %in% c(100, 120),] # Comparar con varios valores
 
 data[data$ptje_mate2m_alu==100 | data$ptje_mate2m_alu==120,] # Equivalente
 
@@ -403,12 +405,16 @@ data[data$ptje_mate2m_alu==100 | data$ptje_mate2m_alu==120,] # Equivalente
 
 # Generemos una variable nueva
 data$media_ptjes <- (data$ptje_mate2m_alu + data$ptje_lect2m_alu)/2
+head(data)
 
-# Podemos filtrar nuestra base de datos bajo conficiones:
+# Podemos filtrar nuestra base de datos bajo condiciones:
 data[data$cod_depe2 == "Municipal" &  data$ptje_mate2m_alu<100,]
 
 # Podemos ordenar nuestra BBDD
-data[order(data$ptje_mate2m_alu),]
+?order
+data[order(data$ptje_mate2m_alu, decreasing = FALSE),]
+data[order(data$ptje_mate2m_alu, decreasing = TRUE),]
+
 
 # 7.3 Descriptivos  ----------------------------------------------------------------
 
@@ -429,7 +435,7 @@ table(data$cod_depe2)
 prop.table(table(data$cod_depe2))
 prop.table(table(data$cod_depe2))*100
 round(prop.table(table(data$cod_depe2)),2)
-sort(prop.table(table(data$cod_depe2))*100, decreasing = TRUE)
+sort(prop.table(table(data$cod_depe2))*100, decreasing = FALSE)
 View(data)
 
 ########################################################################/
