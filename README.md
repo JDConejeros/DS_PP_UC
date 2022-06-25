@@ -32,9 +32,12 @@ Naim Bro & José D. Conejeros
 - :bar_chart: [Datos](https://www.dropbox.com/scl/fo/c016ohjpxxczdcj02sywa/h?dl=0&rlkey=wqbh38oqrrwzj1o78hoofv7ob)
 - :memo: [Simulación test de código](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Test_codigo)
 
-Taller 3: [Visualización de datos con `ggplot2` + Análisis de datos geográficos ](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_3).
+Taller 3: [Visualización de datos con `ggplot2`](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_3).
 
 **Fecha: 25-06-2022**
+
+- :memo:[Código](https://www.dropbox.com/s/cmak4uqo800phby/Taller_3_code.R?dl=0)
+- :bar_chart: [Datos](https://www.dropbox.com/sh/s2e2u7oaijyf39b/AAAA-Wfr-CfibnuBtDmBHnSGa?dl=0)
 
 Taller 4: [Herramientas para la programación funcional `purrr` + Análisis de redes sociales y texto](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_4).
 
