@@ -36,16 +36,18 @@ options(max.print = 99999999) # Nos permite ver más resultados en la consola.
 
 # Podemos trabajar guardando nuestro directorio en un objeto
 directorio <- getwd()
-directorio <- paste0(directorio, "/data") 
-directorio
+directorio_datas <- paste0(directorio, "/data") 
+directorio_datas
 
 # Veamos los archivos de ese directorio
+list.files(directorio)
 list.files(directorio, pattern = "*.csv")
-list.files(directorio, pattern = "*.rds")
+# Expresiones regulares 
+list.files(directorio_datas, pattern = "*.csv") # Expresiones regulares 
 
 # ¿Cuál es la diferencia entre .csv y .rds?
 # Guardemos los nombres de archivos en un vector de caracteres
-archivos <- list.files(directorio, pattern = "*.csv")
+archivos <- list.files(directorio_datas, pattern = "*.csv")
 
 # Vamos a aplicar la lectura de datos a través de la librería rio 
 install.packages("rio")
@@ -54,14 +56,18 @@ library(rio)
 # Podemos leer las tres bases de datos de forma simultánea con un bucle for
 inicio <- Sys.time() # Contemos el tiempo
 for(i in archivos){
-  df <- rio::import(paste0(directorio, "/", i))
+  df <- rio::import(paste0(directorio_datas, "/", i)) # Primer paso
   
   name_df <- paste0("rendimiento", stringr::str_extract(i, pattern = "_20[0-2][0-9]")) 
   
-  assign(name_df, df) # Asignamos
+  #name_df <- janitor::clean_names(stringr::str_remove(i, pattern = ".csv"))
+  
+  assign(name_df, df) # Asignamos: tercer paso
+
 }
+
 # Tiempo de ejecución
-Sys.time()-inicio
+Sys.time()-inicio # 
 
 # También podemos usar las funciones maps de la librería purrr (taller 4)
 
@@ -103,6 +109,7 @@ rendimiento_2019 %>% select(AGNO,NOM_COM_RBD,MRUN) %>% head()
 # Opten por estandarizar el lenguaje
 
 # Veamos los nombres de todas las variables en todos los datos
+dfs <-  as.list(ls(pattern = "rend*")) # Vector con nombres de objetos con cierto patrón
 for(i in dfs){
   print(colnames(get(i)))
 }
@@ -386,22 +393,20 @@ library(geniusr)
 # https://developer.spotify.com/dashboard/
 
 # Extramoe los datos de la cuenta (hay que crearse una cuenta de desarrollador)
-Sys.setenv(SPOTIFY_CLIENT_ID = ' ')
-Sys.setenv(SPOTIFY_CLIENT_SECRET = ' ')
+Sys.setenv(SPOTIFY_CLIENT_ID = 'a09106ed23f04ef9aa33a7f565ecaf43')
+Sys.setenv(SPOTIFY_CLIENT_SECRET = 'f2c4441efbff4abea5d7fc2f5e0bb535')
 
 # Generamos token de acceso
 access_token <- get_spotify_access_token()
 
-# Extracciones de información 
+# Algunos ejemplos de extracciones
 radiohead <- get_artist_audio_features('radiohead')
 radiohead_top <- get_artist_top_tracks(unique(radiohead$artist_id),
                                        market = "CL", # ISO 3166-1 alfa-2 
                                        authorization = access_token,
                                        include_meta_info = TRUE)
 
-top50_chile <- get_playlist_tracks(playlist_id="37i9dQZEVXbL0GavIqMTeb", 
-                                   fields = c("track.name", "track.artists(name)",
-                                   ))
+top50_chile <- get_playlist_tracks(playlist_id="37i9dQZEVXbL0GavIqMTeb", fields = c("track.name", "track.artists(name)"))
 top50_chile$country <- "Chile"
 
 top50_hongkong <- get_playlist_tracks("37i9dQZEVXbLwpL8TjsxOG", fields = c("track.name", "track.artists(name)"))
@@ -410,7 +415,6 @@ top50_hongkong$country <- "HongKong"
 list_plist <- list(top50_chile, top50_hongkong)
 
 all_plist <- tibble(track.artists = NA, track.name = NA, country = NA)
-
 for(i in list_plist){
   all_plist <- all_plist %>% bind_rows(i)
 }
@@ -422,7 +426,6 @@ get_my_top_artists_or_tracks(type = 'artists', time_range = 'long_term', limit =
   ungroup()
 
 # En el próximo taller: extracción de datos a partir de la API de google MAPS.
-
 
 ########################################################################/
 # 9. Ejericicos propuestos -------------
