@@ -52,6 +52,9 @@ Naim Bro & José D. Conejeros
 
 - [Desafío `R`: Enunciado y materiales](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Evaluaciones).
 
+- [Proyecto de investigación](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Evaluaciones).
+
+
 ## Links Complementarios
 
 **Talleres:**
