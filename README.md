@@ -38,6 +38,10 @@ Naim Bro & José D. Conejeros
 
 - :memo:[Código](https://www.dropbox.com/s/cmak4uqo800phby/Taller_3_code.R?dl=0)
 - :bar_chart: [Datos](https://www.dropbox.com/s/7sni8rdcbrrjyzx/extraccion_spotify.csv?dl=0)
+- :collision: Figura objetivo:
+
+![Casos diarios Covid-19](https://github.com/JDConejeros/DS_PP_UC/blob/main/APPD/Taller_3/figuras/gganim_covid.gif)
+
 
 :pushpin:	[Taller 4: Herramientas para la programación funcional `purrr` + Aplicaciones varias](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_4).
 
