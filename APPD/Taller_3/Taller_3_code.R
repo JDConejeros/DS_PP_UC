@@ -148,6 +148,8 @@ write.csv(data_spotify, 'data/extraccion_spotify.csv', row.names=FALSE)
 # 2. Trabajo con visualización de datos -------------
 ########################################################################/
 
+data_spotify <- rio::import("data/extraccion_spotify.csv")
+
 # Nos quedamos solo con el objeto que contiene nuestra extracción de información 
 rm(list=ls()[! ls() %in% c("data_spotify")])
 
@@ -175,7 +177,6 @@ ggplot(data=data_spotify) # Fondo en blanco para comenzar a trabajar
 # Facetas:la disposición de los datos en una cuadrícula de gráficos.
 # Temas (theme()): ajuste visuales del gráfico (incorpora variados elementos adicionales).
 
-
 # Lo más importante es enteder que la información se agrega por capas
 ggplot(data=data_spotify, aes(x=dur, y=energy)) #Agrego ejes: capa2
 g1 <- ggplot(data=data_spotify, aes(x=dur, y=energy)) #Guardo mi gráfico en un objeto
@@ -191,19 +192,25 @@ ggplot(data=data_spotify, aes(x=dur, y=energy)) +
   geom_line()  #Agrego geometría: lines. capa3
 
 ggplot(data=data_spotify, aes(x=dur, y=energy))  + 
-  geom_point(color="steelblue", shape="triangle", size=1, alpha=0.5)  # Ajusto parámetros de la capa
+  geom_point(color="steelblue", shape="triangle", size=0.5, alpha=0.5)  # Ajusto parámetros de la capa
 
 ggplot(data=data_spotify, aes(x=dur, y=energy)) + 
   geom_line(color = "firebrick", linetype = "dotted", size = 0.3)  # Ajusto parámetros de la capa
 
 # Generemos un gráfico mejor 
 # Podemos agregar un filtro dentro de la figura
-ggplot(data=data_spotify[data_spotify$track.artist=="Reggaeton",], aes(x=dur, y=energy))  + 
+ggplot(data=data_spotify[data_spotify$playlist_subgenero=="reggaeton" & data_spotify$dur<=4,],
+       aes(x=dur, y=energy))  + 
   geom_point(size=0.5) + # Puedo ver lo que ocurre por grupos 
   geom_smooth(method = "lm") + # Agregar una línea de tendencia 
   labs(title = "Mi primer ggplot", x="Duración del tema (mins)", y="Indicador de Energía") # Agregamos etiquetas
 
 # Podemos agregar un filtro dentro de la figura 
+data_spotify %>% filter(track.artist=="Wisin & Yandel") %>% 
+  ggplot(aes(x=dur, y=energy)) +
+  geom_point() +
+  geom_smooth()
+
 ggplot(data=data_spotify[data_spotify$track.artist=="Wisin & Yandel",], aes(x=dur, y=energy))  + 
   geom_point(size=0.5) + # Puedo ver lo que ocurre por grupos 
   geom_smooth(method = "lm") + # Agregar una línea de tendencia 
@@ -212,16 +219,16 @@ ggplot(data=data_spotify[data_spotify$track.artist=="Wisin & Yandel",], aes(x=du
 # Una figura más compleja 
 ggplot(data=data_spotify, aes(x=dur, y=energy, color=factor(genero))) + 
   geom_point(size=0.2) + # Puedo ver lo que ocurre por grupos 
-  scale_x_continuous(n.breaks = 10) + 
-  labs(color = "Genero") + # Una etiqueta a la legenda
+  scale_x_continuous(n.breaks = 10, limits = c(0,5)) + 
+  labs(color = "Genero musical") + # Una etiqueta a la legenda
   labs(title = "Mi primer ggplot", x="Duración del tema (mins)", y="Indicador de Energía") + # Agregamos etiquetas
-  theme_light() +
+  theme_light(base_size=11) +
   theme(plot.title = element_text(size = 15, face="bold"),
         axis.text.x=element_text(size=5),
         axis.text.y=element_text(size=5),
         axis.title.x=element_text(size=10), 
         axis.title.y=element_text(size=10),
-        legend.position = "bottom",
+        legend.position = "top",
         legend.title = element_text(size=10))
 
 # Aplicación de temas:
@@ -250,7 +257,7 @@ ggplot(data=data_spotify, aes(x=dur, y=energy, color=factor(subgenero))) +
         axis.title.y=element_text(size=10),
         legend.position = "right",
         legend.title = element_text(size=10)) +
-  facet_wrap(~genero, nrow = 3) 
+  facet_wrap(~genero, ncol = 3, scales="fixed") 
 
 ## 2.3 Guardar gráficos  ----------------------------------------------------------------
 
@@ -275,6 +282,8 @@ g1 <- ggplot(data=data_spotify, aes(x=dur, y=energy, color=factor(subgenero))) +
 # Guardar gráficos (ajustar a ruta específica)
 ggsave("figuras/g1.png", plot=g1)
 
+?ggsave
+
 ########################################################################/
 # 3. Ejemplos de gráficos --------------------
 ########################################################################/
@@ -287,7 +296,7 @@ ggplot(data=data_spotify, aes(x=dur)) +
   geom_histogram(aes(y=..density..),
                  position = "identity", binwidth = 0.1,
                  colour="black", fill="white") +
-  scale_x_continuous() +
+  scale_x_continuous(n.breaks=20) +
   labs(title="Distribución por género",
        x="Energía", y = "Densidad") +
   geom_density(col="red") + 
@@ -312,7 +321,7 @@ data_spotify %>%
         axis.text.x=element_text(size=5),
         axis.text.y=element_text(size=5),
         axis.title.y=element_text(size=10),
-        legend.position = "right")
+        legend.position = "top")
 
 ## 3.2 Gráficos de Barras ----------------------------------------------------------------
 
@@ -331,15 +340,15 @@ levels(tabla$subgenero)
 ggplot(tabla, aes(x=subgenero, y=popu, fill=subgenero)) +         
   geom_bar(stat = "identity", position = "dodge", width = 0.75) +
   scale_y_continuous(limits = c(0,100),
-                     n.breaks = 10) +
+                     n.breaks = 5) +
   geom_text(aes(label=format(round(popu,1), decimal.mark=",")), 
             vjust=-0.75,
             size=3,
             color="gray40",
             fontface="bold") +
   labs(title = "Gráfico de popularidad según subgenero",
-       subtitle = "Extracciones de spotify",
-       caption = "Elaboración propia",
+       subtitle = "Extracciones de Spotify",
+       caption = "Elaboración propia.",
        y="Índice de popularidad") +
   scale_fill_brewer(palette = "Set2") +
   geom_vline(xintercept = 2.5, col='red', lwd=0.5, linetype="dotted") + 
@@ -371,9 +380,12 @@ pie_info <- data_spotify %>%
 colores <- c("#0073C2FF", "#EFC000FF", "#868686FF",
              "#0073C2FF", "#EFC000FF", "#868686FF")
 
+library(RColorBrewer)
+RColorBrewer::display.brewer.all()
+
 ggplot(pie_info, aes(x = "", y = prop, fill = subgenero)) +
   geom_bar(stat = "identity", color = "white", width = 1) +
-  coord_polar(theta = "y", start = 0)+ # Nos permite generar una circunferencia 
+  coord_polar(theta = "y", start = 0) + # Nos permite generar una circunferencia 
   geom_text(aes(x=1, label = paste0(round(prop,1), "%")), position = position_stack(vjust = .5), 
             color = "white", size=5, fontface = "bold") +
   labs(title="Gráfico de torta", caption = "Fuente: Elaboración propia") +
@@ -425,7 +437,8 @@ box <- ggplot(data=data_spotify, aes(x=subgenero, y=dur, fill=subgenero)) +
        y="Duración") +
   facet_wrap(~genero, scales = "free_x") + 
   theme_minimal() +
-  theme(legend.position = "none")
+  theme(legend.position = "none",
+        axis.title.x = element_blank())
 box
   
 box + geom_jitter(width = .3, alpha = .3)
@@ -433,7 +446,7 @@ box + geom_violin(fill = "gray80", size = 1, alpha = .5)
 
 # Combinemos
 box + geom_violin(fill = "gray80", size = 1, alpha = .5) +
-  geom_jitter(alpha = .25, width = .3) +
+  geom_jitter(alpha = .05, width = .1) +
   coord_flip()
 
 ## 3.5 Correlaciones ----------------------------------------------------------------
@@ -450,20 +463,18 @@ install.packages("corrplot")
 library(corrplot)
 
 # Vamos a guardar nuestro gráfico en un objeto
-corrplot(tabla, method = 'color', 
-         order = 'hclust', 
-         type = 'upper', 
-         diag = FALSE, 
+corrplot(tabla, method = 'color',
+         order = 'hclust',
+         type = 'upper',
+         diag = FALSE,
          addCoef.col = "grey30",
          number.cex = 0.6,
-         tl.col = 'black',
+         tl.col = "gray40",
          tl.srt=45,
          tl.cex = 0.7,
          mar = c(rep(0.25, 4)))
 
-
 ## 3.6 Unir gráficos ----------------------------------------------------------------
-
 # Podemos unir varios gráficos en una misma figura, para esto podemos usar: 
 # intall.packages("ggpubr") # o también
 # intall.packages("patchwork")
@@ -505,7 +516,7 @@ data_figura <- data %>% slice(-17) %>%
 data_figura %>% head(n=30)
 unique(data_figura$Region) # Veamos los valores para las regiones
 
-reg <- unique(data$Region)
+reg <- unique(data_figura$Region)
 reg
 
 # Graficamos
@@ -549,7 +560,7 @@ ggsave(plot = g1,
        units = 'cm',
        scaling = 0.7,
        device = ragg::agg_png)
-
+?ggsave
 ########################################################################/
 # 5. Animar figuras -------------
 ########################################################################/
