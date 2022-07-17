@@ -42,8 +42,14 @@ Naim Bro & José D. Conejeros
 
 ![Casos diarios Covid-19](https://github.com/JDConejeros/DS_PP_UC/blob/main/APPD/Taller_3/figuras/gganim_covid.gif)
 
-
 :pushpin:	[Taller 4: Herramientas para la programación funcional `purrr` + Aplicaciones varias](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Taller_4).
+
+- :memo: Utilizar código de `R` y `Python` en `Colab`: [https://colab.research.google.com/drive/17VcrejHN1RkKd3FvyrdI6oOdKV46aZCQ#scrollTo=WMf9EVOMaUmd](https://colab.research.google.com/drive/1Qf0zBOxwMmi9A3y73hKtLcT0Z-AbRyO-#scrollTo=JkbctZ7HcM2L)
+- :memo:[Código](https://www.dropbox.com/s/gqil4s86asuffir/Taller_4_code.R?dl=0)
+- :memo: Código en Colab[https://colab.research.google.com/drive/1Qf0zBOxwMmi9A3y73hKtLcT0Z-AbRyO-#scrollTo=JkbctZ7HcM2L](https://colab.research.google.com/drive/1Qf0zBOxwMmi9A3y73hKtLcT0Z-AbRyO-#scrollTo=JkbctZ7HcM2L)
+- :bar_chart: [Datos](https://www.dropbox.com/s/4sw1rukgkuw8uey/simce_2016_colegios.rds?dl=0)
+
+
 
 **Fecha: 09-07-2022**
 
