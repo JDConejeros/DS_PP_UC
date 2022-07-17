@@ -54,8 +54,8 @@ sessionInfo()
 # En este caso vamos a utilizar la interfaz de aplicación de usuario de google maps.
 # Para acceder a la API debemos construir una cuenta: https://developers.google.com/maps/documentation/places/web-service/cloud-setup
 # Clave de API: 
-
-key <- "AIzaSyArubV56wqGQq72r3i2be4srfqoQfgwbhw"
+# Registre su propia key
+key <- ""
 
 # Con esto ya podemos hacer la consulta desde la API de google.
 # Aplicamos la función: 
@@ -161,8 +161,8 @@ google_map(key = key, location=c(-33.24067764650778, -70.57466430324301), search
 ## 1.4 Extracción a partir de una fuente de datos -----
 # Vamos a leer una muestra aleatoria de datos del SIMCE. 
 rm(list=ls())
-
-key <- "AIzaSyArubV56wqGQq72r3i2be4srfqoQfgwbhw" # Recuerde siempre usar un key de entrada
+# Registre su propia key
+key <- "" # Recuerde siempre usar un key de entrada
 
 # Tengo la información de los colegios 
 simce <- import("data/simce_2016_colegios.rds")
@@ -193,11 +193,16 @@ simce <- cbind(simce, dir)
   
 ## 1.5 Otra alternativa de extracción -----
 # https://cran.r-project.org/web/packages/ggmap/ggmap.pdf
-register_google(key="AIzaSyArubV56wqGQq72r3i2be4srfqoQfgwbhw")
+# Utilizar API-key propia
+# Registre su propia key
+register_google(key="")
 
 ?mutate_geocode
 
 simce2 <- simce %>% mutate_geocode(location = nom_rbd, output = "more")
+simce2 <- simce %>% mutate_geocode(location = dir, output = "latlon")
+
+sapply(simce2, function(x) sum(is.na(x)))
 
 # Con esto ya puedo empezar a trabar en visualizaciones
 
@@ -206,7 +211,7 @@ simce2 <- simce %>% mutate_geocode(location = nom_rbd, output = "more")
 # Podemos usar la librería googleway
 # https://cran.r-project.org/web/packages/googleway/vignettes/googleway-vignette.html
 google_map(data = simce, key = key) %>%
-  add_markers(lat = "latitud", lon = "longitud", info_window = "nom_rbd") %>% 
+  #add_markers(lat = "latitud", lon = "longitud", info_window = "nom_rbd") %>% 
   add_heatmap(lat = "latitud", lon = "longitud",option_radius = 0.005,
             weight = 'media_mate', 
             option_gradient = c("plum1", "purple1", "peachpuff"))
@@ -250,9 +255,10 @@ stgo +
 
 # Agreguemos una capa discreta
 stgo + 
-  geom_point(aes(x = longitud, y = latitud, color=stringr::str_to_title(pago_matricula)), data = simce, size = 0.75, alpha=1) +
+  geom_point(aes(x = longitud, y = latitud, color=stringr::str_to_title(pago_matricula)), data = simce, size = 2, alpha=1) +
   scale_colour_discrete("Pago Matrícula") +
   labs(x="Longitud", y="Latitud") +
+  facet_wrap(~fem) +
   theme_minimal() + 
   theme(legend.position = "right",
         legend.text = element_text(size=8), 
@@ -263,7 +269,8 @@ stgo +
 stgo + stat_bin2d(
   aes(x = longitud, y = latitud, colour = pago_matricula, fill = pago_matricula),
   size = .5, bins = 30, alpha = 1/2,
-  data = simce) 
+  data = simce)  +
+  facet_wrap(~fem)
 
 # Las alternativas vistas en clase SF
 # Una buena guía: https://arcruz0.github.io/libroadp/maps.html
@@ -291,6 +298,9 @@ get_robotstxt("https://fundacionsol.cl/blog/actualidad-1/tag/columnas-de-opinion
 
 ## a. Títular de las columnas de la primera página ----
 enlace1 <- read_html("https://fundacionsol.cl/blog/actualidad-1/tag/columnas-de-opinion-1316")
+install.packages("xml2")
+library(xml2)
+
 columnas_FS <- enlace1 %>% 
   html_nodes(".h5") %>% 
   html_text(trim = TRUE)
@@ -299,6 +309,7 @@ columnas_FS <- enlace1 %>%
 enlace_columnas_FS <- enlace1 %>% 
   html_nodes(".h5") %>% 
   html_attr("href") 
+
 enlace_columnas_FS <- paste0("https://fundacionsol.cl", enlace_columnas_FS)
 enlace_columnas_FS
 
@@ -327,12 +338,14 @@ obtener_columnasFS <- function(numero_pagina){
   FS2 <- html %>% 
     html_nodes(".h5") %>% 
     html_attr("href")
+  
   FS2 <- paste0("https://fundacionsol.cl", FS2) # Enlace de las columnas
   
   tibble(titulo = FS1, 
          enlace_columna = FS2) 
 }
 # Generamos una data con la información 
+library(purrr)
 ColumnasFS <- map_df(1, obtener_columnasFS) # Ajustamos las primeras 12 columnas
 ColumnasFS
 
@@ -360,7 +373,7 @@ ColumnasFS <- ColumnasFS %>% mutate(fechas=as_date(as.character(fechas), format=
 ColumnasFS
 
 # Filtramos con la información respectiva a 2019 - 2020 
-ColumnasFS2 <- ColumnasFS %>% filter(year>=2021)
+ColumnasFS2 <- ColumnasFS %>% filter(year>=2022)
 
 # c. Generamos una función para agregar el cuerpo de la columna -----
 cuerpo_FS <- function(enlace) {
@@ -375,14 +388,15 @@ cuerpo_FS <- function(enlace) {
 }
 
 # Agregamos la información a la base de datos
-ColumnasFS$cuerpo <- map(ColumnasFS$enlace_columna[1:nrow(ColumnasFS)], cuerpo_FS) %>% unlist() 
+ColumnasFS2$cuerpo <- map(ColumnasFS2$enlace_columna[1:nrow(ColumnasFS2)], cuerpo_FS) %>% unlist() 
 
-ColumnasFS
+ColumnasFS2
 
 # Ajustamos los textos
 glimpse(ColumnasFS2)
 
 # Guardamos la información extraída en un base de datos 
+install.packages("glue"); library(glue)
 write.csv(ColumnasFS2, glue("data/FS_{today()}.csv"), row.names = F)
 
 #################################################################################################################/
