@@ -12,9 +12,7 @@
 
 # 1. Uso de APIS para la extracción de datos geográficos.
 
-# 2. Aplicaciones de análisis de texto. 
-
-# 3. Introducción a la programación funcional tipo purrr
+# 2. Webscrapping y aplicaciones de análisis de texto. 
 
 # Desactivar notación científica y limpiar la memoria
 options(scipen=999)
@@ -37,7 +35,8 @@ pkg <- c("rio", "dplyr", "tidyr", "lubridate", "stringr", "lubridate", # Manipul
          "ggplot2", "ggpubr", "patchwork", # Visualización de datos 
          "googleway", # Extracción de datos geográficos desde la API de google maps
          "ggmap", # Extracción de datos geográficos desde la API de google maps
-         "robotstxt", "rvest", # webscrapping
+         "robotstxt", "rvest", "xml2", "glue", # webscrapping
+         "purrr", # Programación funcional
          "tidytext", "topicmodels" # Análisis de texto 
          )  
 
@@ -53,6 +52,7 @@ sessionInfo()
 # https://cran.r-project.org/web/packages/googleway/googleway.pdf
 # En este caso vamos a utilizar la interfaz de aplicación de usuario de google maps.
 # Para acceder a la API debemos construir una cuenta: https://developers.google.com/maps/documentation/places/web-service/cloud-setup
+
 # Clave de API: 
 # Registre su propia key
 key <- ""
@@ -62,6 +62,7 @@ key <- ""
 ?google_places
 
 ## 1.1 Primera extracción -----
+
 google_places(search_string = 'Colegio', # Lo que me interesa buscar 
               location=c(-33.24067764650778, -70.57466430324301), # Ubicación de la zona: lat, long 
               radius=10000, # radio en metros
@@ -83,6 +84,7 @@ df_escuelas <- cbind(
 )
 
 dim(df_escuelas)
+head(df_escuelas)
 
 # Podemos notar que se extraen solo 20 resultados. 
 # Esta es una limitación de la librería
@@ -106,7 +108,8 @@ data_result <- tibble(rbind(
     dir=geocode_address(escuelas2) # Dirección 
 )))
 
-data_result 
+dim(data_result)
+head(data_result)
 
 # ¿Podemos seguir extrayendo más data
 escuelas2$next_page_token
@@ -119,6 +122,7 @@ escuelas3 <- google_places(search_string = 'Colegio', # Lo que me interesa busca
                            key=key,
                            page_token = escuelas2$next_page_token)
 
+# Generamos una base de datos con los resultados
 data_result <- tibble(rbind(
   data_result, 
   cbind(
@@ -134,12 +138,18 @@ escuelas3$next_page_token
 # Ya no podemos obtener más resultados: (1) no hay más data, (2) límite de extracciones
 # Solución: Debemos ajustar las coordenadas de búsqueda
 
-## 1.2 Otras aplicaciones útiles -----
+## 1.3 Otras aplicaciones útiles -----
+
 # Podemos buscar por coordenadas específicas
-escuelas <- google_places(location = c(-33.24067764650778, -70.57466430324301),
+escuelas <- google_places(location = c(-33.441951012543456, -70.65393022891996),
               keyword = "school",
               radius = 150,
               key = key)
+
+cbind(
+  place_name(escuelas), # Nombre del lugar
+  place_location(escuelas) # lat y long
+)
 
 # Otras funciones de interés
 ?google_distance() # Permite evualar distancias y tiempo de viaje entre dos lugares.
@@ -150,7 +160,7 @@ google_distance(origins = list(c("Diagonal Paraguay 406, Santiago"),
                 destinations = c("Palacio de La Moneda"),
                 key = key)
 
-## 1.3 Visualizaciones de mapas -----
+## 1.4 Visualizaciones de mapas -----
 ?google_map
 
 google_map(key = key, location=c(-33.24067764650778, -70.57466430324301), search_box = T) %>%
@@ -158,7 +168,8 @@ google_map(key = key, location=c(-33.24067764650778, -70.57466430324301), search
   add_markers(lat = data_result$lat, lon = data_result$lng, info_window = data_result$name) %>% 
   add_heatmap(lat = -33.38690629782117, lon = -70.56630517207768, option_radius = 0.05)
 
-## 1.4 Extracción a partir de una fuente de datos -----
+## 1.5 Extracción a partir de una fuente de datos -----
+
 # Vamos a leer una muestra aleatoria de datos del SIMCE. 
 rm(list=ls())
 # Registre su propia key
@@ -167,11 +178,12 @@ key <- "" # Recuerde siempre usar un key de entrada
 # Tengo la información de los colegios 
 simce <- import("data/simce_2016_colegios.rds")
 
+# Vamos a sacar una muestra aleatoria para no demorar la extracción 
 set.seed(2020) # Plantamos una semilla para reproducir procesos aleatorios
 simce <- simce %>% 
   filter(rbd %in% sample(simce$rbd, size=250))
 
-# Revisemos NA
+# Revisemos si hay casos pérdidos en las variables
 sapply(simce, function(x) sum(is.na(x)))
 
 # Extraígo direcciones 
@@ -191,7 +203,8 @@ dir
 # Agregamos los datos a la fuente original 
 simce <- cbind(simce, dir)
   
-## 1.5 Otra alternativa de extracción -----
+## 1.6 Otra alternativa de extracción -----
+
 # https://cran.r-project.org/web/packages/ggmap/ggmap.pdf
 # Utilizar API-key propia
 # Registre su propia key
@@ -199,6 +212,7 @@ register_google(key="")
 
 ?mutate_geocode
 
+# Podemos realizar varios tipos de extracciones según el imput
 simce2 <- simce %>% mutate_geocode(location = nom_rbd, output = "more")
 simce2 <- simce %>% mutate_geocode(location = dir, output = "latlon")
 
@@ -206,7 +220,7 @@ sapply(simce2, function(x) sum(is.na(x)))
 
 # Con esto ya puedo empezar a trabar en visualizaciones
 
-# 1.6 Visualización de datos geográficos -------------
+## 1.7 Visualización de datos geográficos -------------
 
 # Podemos usar la librería googleway
 # https://cran.r-project.org/web/packages/googleway/vignettes/googleway-vignette.html
@@ -258,7 +272,7 @@ stgo +
   geom_point(aes(x = longitud, y = latitud, color=stringr::str_to_title(pago_matricula)), data = simce, size = 2, alpha=1) +
   scale_colour_discrete("Pago Matrícula") +
   labs(x="Longitud", y="Latitud") +
-  facet_wrap(~fem) +
+  #facet_wrap(~fem) +
   theme_minimal() + 
   theme(legend.position = "right",
         legend.text = element_text(size=8), 
@@ -268,9 +282,29 @@ stgo +
 # Discretas 
 stgo + stat_bin2d(
   aes(x = longitud, y = latitud, colour = pago_matricula, fill = pago_matricula),
-  size = .5, bins = 30, alpha = 1/2,
+  size = .5, bins = 80, alpha = 1/2,
   data = simce)  +
   facet_wrap(~fem)
+
+# Continuas: Frecuencia de casos observados
+stgo +
+  stat_density2d(aes(x = longitud, y = latitud, fill = ..level.., alpha=..level..*2), 
+                 size = 0.2, bins = 30,
+                 geom = "polygon",
+                 data = simce) +
+  guides(fill = guide_legend(alpha = FALSE)) +
+  scale_fill_gradient(low = "light blue", high= "dark blue") 
+
+# Gradiente de resultado en matemáticas
+stgo + 
+  geom_point(aes(x = longitud, y = latitud, color=media_mate), data = simce, size = 2, alpha=1, pch = 20) +
+  scale_color_gradient(name="SIMCE matemáticas", low = "red", high= "dark blue") +
+  theme_minimal() + 
+  labs(x="Longitud", y="Latitud") +
+  theme(legend.position = "top",
+        legend.text = element_text(size=8), 
+        legend.title = element_text(size=8)) 
+
 
 # Las alternativas vistas en clase SF
 # Una buena guía: https://arcruz0.github.io/libroadp/maps.html
@@ -284,28 +318,49 @@ stgo + stat_bin2d(
 # 2. Webscrapping y análisis de texto -------------
 ########################################################################/
 
-# 3.1 Contexto del análisis  --------------------------------------------------
+# Para realizar extracciones debemos revisar los componentes del .html sobre el que vamos a trabajar. Tenemos dos opciones:
+#   
+# a. Ir sobre el punto de interés, presionar el botón secunario y dar click en "Inspeccionar", ahí se observa las características del componente del cual se aplica la extracción.
+# 
+# b. Buscar el componente con de interés con un selectorgadget
+# 
+# Puede revisar la siguiente referencia: https://smac-group.github.io/ds/section-web-scraping-in-r.html
+# 
+# De este punto en adelante utilizaremos herramientas de las librerías xml2 y rvest
+
+## 2.0 Contexto del análisis  --------------------------------------------------
+rm(list=ls())
 # En este ejercicio exploratorio se propone realizar un análisis temáticos para las columnas de opinión 
 # producidas por un centro de investigación autodefinido como independiente para evaluar los temas principales 
 # en un período de tiempo o ciertas temáticas de interés.
 
-# 3.2 Scraping de la página --------------------------------------------------
+## 2.1 Consultar la extracción --------------------------------------------------
 # En general no se observan impedimentos explícitos para operar con los textos respectivos a columnas de opinión
 get_robotstxt("https://fundacionsol.cl/blog/actualidad-1/tag/columnas-de-opinion-1316") # Fundación SOL (FS)
 
-# 3.1 Extraer información --------------------------------------------------
-# Vamos hacer un testo inicial antes de realizar un procedimiento de extracción completo. 
+# Otra alternativa
+paths_allowed(
+  path = "blog/actualidad-1/tag/columnas-de-opinion-1316",
+  domain = "https://fundacionsol.cl/"
+)
 
-## a. Títular de las columnas de la primera página ----
+## 2.2 Extraer información --------------------------------------------------
+# Vamos hacer un testeo inicial antes de realizar un procedimiento de extracción completo. 
+
+### a. Títular de las columnas de la primera página ----
+
+# Enlace de extracción
 enlace1 <- read_html("https://fundacionsol.cl/blog/actualidad-1/tag/columnas-de-opinion-1316")
-install.packages("xml2")
-library(xml2)
 
+# Nodo de información y ajuste
 columnas_FS <- enlace1 %>% 
   html_nodes(".h5") %>% 
   html_text(trim = TRUE)
 
-## b. Enlaces para cada columna ----
+# Resultado
+columnas_FS
+
+### b. Enlaces para cada columna ----
 enlace_columnas_FS <- enlace1 %>% 
   html_nodes(".h5") %>% 
   html_attr("href") 
@@ -313,15 +368,19 @@ enlace_columnas_FS <- enlace1 %>%
 enlace_columnas_FS <- paste0("https://fundacionsol.cl", enlace_columnas_FS)
 enlace_columnas_FS
 
-# c. Guardamos la información en una base de datos ----
+### c. Guardamos la información en una base de datos ----
 baseFS <- tibble(titular = columnas_FS,
                  enlace_columna = enlace_columnas_FS)
 
+baseFS
+# Ahora vamos a aplicar esto de forma iterada.
+
 #################################################################################################################/
-# 4. Webscraping (Completo) + Procesamiento del texto --------------------------------------------------
+# 3. Webscraping II --------------------------------------------------
 #################################################################################################################/
-# 4.1 Fundación SOL ----
-# a. Generamos una función de extracción para todos los tituales y URL de las columnas de opinión----
+
+## 3.1 Fundación SOL ----
+### a. Generamos una función de extracción para todos los titulares y URL de las columnas de opinión----
 # Enlaces, titulares y fechas 
 obtener_columnasFS <- function(numero_pagina){
   
@@ -344,12 +403,18 @@ obtener_columnasFS <- function(numero_pagina){
   tibble(titulo = FS1, 
          enlace_columna = FS2) 
 }
-# Generamos una data con la información 
-library(purrr)
-ColumnasFS <- map_df(1, obtener_columnasFS) # Ajustamos las primeras 12 columnas
+
+# Las funciones map nos permiten aplicar for de forma más directa y eficiente
+?map 
+map(columnas_FS, head) # Vemos un head columna por columna 
+
+# Generamos una data con la información de 3 páginas de la web
+?map_df # Iteración que permite modificar una matriz de datos
+ColumnasFS <- map_df(1:2, obtener_columnasFS) # Ajustamos las primeras 12 columnas por página
 ColumnasFS
 
-# b.  Generamos una función para extraer fechas -----
+### b.  Generamos una función para extraer fechas -----
+
 fechas_FS1 <- function(enlace){
   Sys.sleep(3)
   read_html(enlace) %>%
@@ -360,7 +425,9 @@ fechas_FS1 <- function(enlace){
     format("%d-%m-%Y")
 }
 
+
 # Agregamos las fechas a la base de datos 
+# map que permite generar una columna nueva con un resultado
 ColumnasFS$fechas <- map(ColumnasFS$enlace_columna[1:nrow(ColumnasFS)], fechas_FS1) %>%
   unlist() 
 
@@ -372,10 +439,11 @@ ColumnasFS <- ColumnasFS %>% mutate(fechas=as_date(as.character(fechas), format=
 
 ColumnasFS
 
-# Filtramos con la información respectiva a 2019 - 2020 
-ColumnasFS2 <- ColumnasFS %>% filter(year>=2022)
 
-# c. Generamos una función para agregar el cuerpo de la columna -----
+# Filtramos con la información respectiva a 2021 - 2022
+ColumnasFS2 <- ColumnasFS %>% filter(year>=2021)
+
+### c. Generamos una función para agregar el cuerpo de la columna -----
 cuerpo_FS <- function(enlace) {
   Sys.sleep(3)
   
@@ -394,106 +462,114 @@ ColumnasFS2
 
 # Ajustamos los textos
 glimpse(ColumnasFS2)
+ColumnasFS2 %>% select(titulo, fechas, cuerpo) %>% head()
 
 # Guardamos la información extraída en un base de datos 
-install.packages("glue"); library(glue)
 write.csv(ColumnasFS2, glue("data/FS_{today()}.csv"), row.names = F)
 
 #################################################################################################################/
-# 5. Análisis de texto --------------------------------------------------
+# 4. Análisis de texto --------------------------------------------------
 #################################################################################################################/
-# 5.1 Preparación de los textos --------------------------------------------------
+
+# En general estamos acostumbrados/a a trabajar con data estructurada, generalmente numérica, pero hay una gran parte de los datos que no están estructurados y el texto es uno de ellos.
+# 
+# Una buena referencia para profundizar en este tema es: https://www.tidytextmining.com/index.html
+# 
+# A continuación se presentan algunas herramientas iniciales de análisis de texto. Sin embargo, el código no tiene el foco de ser exhaustivo, sino que demostrativo.
+
+## 4.1 Generación de stopwords --------------------------------------------------
 # Una vez guardado los texto en csv, procedemos a limpiar la memoria para ajustar los análisis
 rm(list = ls())
 
 # Cargamos las base de datos 
-FS <- read.csv("data/FS_2021-08-07.csv")
+FS <- read.csv("data/FS_2022-07-17.csv")
 
 # Generamos las stopwords
-algunas_stopwords <- read_csv("https://raw.githubusercontent.com/7PartidasDigital/AnaText/master/datos/diccionarios/vacias.txt")
+algunas_stopwords <- read.csv("https://raw.githubusercontent.com/7PartidasDigital/AnaText/master/datos/diccionarios/vacias.txt")
 mas_stopwords <- tibble(palabra = c("va", "tiene", "ser", "puede", "dice", "hacer", "hace", "columnas", "columna"))
 
 # Unimos ambos objetos:
 las_stopwords <- bind_rows(algunas_stopwords, mas_stopwords)
 
-# 5.2 Análisis de bigramas --------------------------------------------------
+## 4.2 Análisis de bigramas --------------------------------------------------
 # A continuación se presenta un análisis de bigramas dada las temáticas de análisis. 
+# Esto se considera un análisis descriptivo
 
-# a. Espacio Público  --------------------------------------------------
-# Generamos la información del bigrama
-bigramasEP <- EP %>% 
-  unnest_tokens(input = cuerpo,
-                output = palabra,
-                token = "ngrams",
-                n = 2) %>% 
-  filter(!is.na(palabra)) %>% 
-  count(palabra, sort = TRUE) %>% 
-  separate(palabra,
-           into = c("palabra_1", "palabra_2"),
-           sep = " ") %>% 
-  filter(!palabra_1 %in% las_stopwords$palabra) %>% 
-  filter(!palabra_2 %in% las_stopwords$palabra)
-bigramasEP
-# Guardamos nuestros resultados en excel para el reporte general
-openxlsx::write.xlsx(bigramasEP[1:10,], "data/bigramasEP.xlsx")
-
-# b. Libertad y desarrollo  --------------------------------------------------
-# Generamos la información del bigrama
-bigramasLYD <- LYD %>% 
-  unnest_tokens(input = cuerpo,
-                output = palabra,
-                token = "ngrams",
-                n = 2) %>% 
-  filter(!is.na(palabra)) %>% 
-  count(palabra, sort = TRUE) %>% 
-  separate(palabra,
-           into = c("palabra_1", "palabra_2"),
-           sep = " ") %>% 
-  filter(!palabra_1 %in% las_stopwords$palabra) %>% 
-  filter(!palabra_2 %in% las_stopwords$palabra)
-bigramasLYD
-# Guardamos nuestros resultados en excel para el reporte general
-openxlsx::write.xlsx(bigramasLYD[1:10,], "data/bigramasLYD.xlsx")
-
-# c. Fundación SOL  --------------------------------------------------
 # Generamos la información del bigrama
 bigramasFS <- FS %>% 
   unnest_tokens(input = cuerpo,
                 output = palabra,
                 token = "ngrams",
-                n = 2) %>% 
-  filter(!is.na(palabra)) %>% 
-  count(palabra, sort = TRUE) %>% 
+                n = 2) %>% # Función que extrae los bigramas
+  filter(!is.na(palabra)) %>%  # Filtramos si hay casos pérdidos
+  dplyr::count(palabra, sort = TRUE) %>%  # Realizamos un conteo de las palabras
   separate(palabra,
            into = c("palabra_1", "palabra_2"),
-           sep = " ") %>% 
+           sep = " ") %>% # Separamos las palabras en dos columnas
   filter(!palabra_1 %in% las_stopwords$palabra) %>% 
-  filter(!palabra_2 %in% las_stopwords$palabra)
+  filter(!palabra_2 %in% las_stopwords$palabra) # Eliminamos stopwords
 bigramasFS
 # Guardamos nuestros resultados en excel para el reporte general
 openxlsx::write.xlsx(bigramasFS[1:10,], "data/bigramasFS.xlsx")
 
-# 5.3 LDA  --------------------------------------------------
+# Apliquemos una representación visual
+library(forcats)
+gbig <- bigramasFS %>% 
+  mutate(word=paste(palabra_1, palabra_2, sep="-")) %>% 
+  group_by(word) %>% 
+  ungroup() %>% 
+  slice_max(n, n = 15) %>% 
+  mutate(pos = fct_reorder(word, n, .desc = FALSE)) %>%
+  ggplot(aes(y=n, x=pos)) +
+  geom_col(show.legend = FALSE) +
+  coord_flip() +
+  theme_minimal() +
+  theme(axis.text=element_text(size=7))
+
+gbig
+
+## 4.3 LDA  --------------------------------------------------
 # Realizamos un análisis temático para cada institución con el fin de observar variantes en las temáticas latentes que se abordan. 
 
-# a. Fundación SOL  --------------------------------------------------
+# El latent dirichlet allocation (LDA) es uno de los algoritmos más comunes para el análisis temático. Opera bajos dos premisas: 
+  
+#- Cada documento es una mezcla de temas. Imaginamos que cada documento puede contener palabras de varios temas en proporciones particulares. 
+# Por ejemplo, en un modelo de dos temas, podríamos decir: "El documento 1 tiene un 90 % del tema A y un 10 % del tema B, mientras que el documento 2 tiene un 
+# 30 % del tema A y un 70 % del tema B".
+
+#- Cada tema es una mezcla de palabras. Por ejemplo, podríamos imaginar un modelo de noticias con un tema para "política" y otro para "entretenimiento". 
+# Las palabras más comunes en el tema de política pueden ser "Presidente", "Congreso" y "gobierno", mientras que el tema de entretenimiento puede 
+# estar formado por palabras como "películas", "televisión" y "actor". Es importante destacar que las palabras se pueden compartir entre temas; una palabra como “presupuesto” 
+# podría aparecer en ambos por igual.
+
 # Ajustamos los textos para el análisis
 frecuencias_columnas_FS <- FS %>% 
   mutate(documento = 1:nrow(FS), .before = titulo) %>% 
   unnest_tokens(input = cuerpo, output = palabra) %>% 
   anti_join(las_stopwords) %>% 
-  count(documento, palabra, sort = TRUE)
+  dplyr::count(documento, palabra, sort = TRUE)
+
+frecuencias_columnas_FS 
 
 # Generamos el LDA para el análisis temático
 columnas_dtm <- frecuencias_columnas_FS %>% 
   cast_dtm(documento, palabra, n)
 
-columnas_lda <- LDA(columnas_dtm, k = 3, control = list(seed= 1234))
+columnas_dtm 
 
-columnas_temas <- tidy(columnas_lda, matrix = "beta")
+# Especificamos el objeto sobre el cual realizaremos el análisis
+columnas_lda <- LDA(columnas_dtm, # Usamos la matriz previa
+                    k = 3, # Indicamos el número de temáticas latentes que esperamos salgan de los datos
+                    control = list(seed= 1234)) # Platamos una semilla para replicar procesos aleatorios
+columnas_lda
+
+columnas_temas <- tidy(columnas_lda, matrix = "beta") # Beta es el indicador de asociación con la temática emergente
+columnas_temas
 
 # Generamos una representación gráfica del análisis
 gFS <- columnas_temas %>% 
+  mutate(topic=factor(topic, levels=c(1,2,3), 
+                         labels=c("Temática 1", "Temática 2", "Temática 3"))) %>% 
   group_by(topic) %>% 
   slice_max(beta, n = 10) %>% 
   arrange(topic, -beta) %>%
@@ -502,77 +578,9 @@ gFS <- columnas_temas %>%
   geom_col(show.legend = F)+
   facet_wrap(~topic, scales = "free") +
   scale_y_reordered() +
-  theme_light() +
+  theme_minimal() +
   theme(axis.text=element_text(size=7))
-ggsave("FS_LDA.png", gFS)
-
-# b. Libertad y desarrollo  --------------------------------------------------
-# Ajustamos los textos para el análisis
-frecuencias_columnas_LYD <- LYD %>% 
-  mutate(documento = 1:nrow(LYD), .before = titulo) %>% 
-  unnest_tokens(input = cuerpo, output = palabra) %>% 
-  anti_join(las_stopwords) %>% 
-  count(documento, palabra, sort = TRUE)
-
-# Generamos el LDA para el análisis temático
-columnas_dtm <- frecuencias_columnas_LYD %>% 
-  cast_dtm(documento, palabra, n)
-
-columnas_lda <- LDA(columnas_dtm, k = 3, control = list(seed= 1234))
-
-columnas_temas <- tidy(columnas_lda, matrix = "beta")
-
-# Generamos una representación gráfica del análisis
-gLYD <- columnas_temas %>% 
-  group_by(topic) %>% 
-  slice_max(beta, n = 10) %>% 
-  arrange(topic, -beta) %>%
-  mutate(term = reorder_within(term, beta, topic)) %>% 
-  ggplot(aes(y = term, beta, fill = factor(topic))) +
-  geom_col(show.legend = F)+
-  facet_wrap(~topic, scales = "free") +
-  scale_y_reordered() +
-  theme_light() +
-  theme(axis.text=element_text(size=7))
-ggsave("LYD_LDA.png", gLYD)
-
-# c. Espacio Público  --------------------------------------------------
-# Ajustamos los textos para el análisis
-frecuencias_columnas_EP <- EP %>% 
-  mutate(documento = 1:nrow(EP), .before = titulo) %>% 
-  unnest_tokens(input = cuerpo, output = palabra) %>% 
-  anti_join(las_stopwords) %>% 
-  count(documento, palabra, sort = TRUE)
-
-# Generamos el LDA para el análisis temático
-columnas_dtm <- frecuencias_columnas_EP %>% 
-  cast_dtm(documento, palabra, n)
-
-columnas_lda <- LDA(columnas_dtm, k = 3, control = list(seed= 1234))
-
-columnas_temas <- tidy(columnas_lda, matrix = "beta")
-
-# Generamos una representación gráfica del análisis
-gEP <- columnas_temas %>% 
-  group_by(topic) %>% 
-  slice_max(beta, n = 10) %>% 
-  arrange(topic, -beta) %>%
-  mutate(term = reorder_within(term, beta, topic)) %>% 
-  ggplot(aes(y = term, beta, fill = factor(topic))) +
-  geom_col(show.legend = F)+
-  facet_wrap(~topic, scales = "free") +
-  scale_y_reordered() +
-  theme_light() +
-  theme(axis.text=element_text(size=7))
-ggsave("EP_LDA.png", gEP)
-
-
-#################################################################################################################/
-# 6. Herramientas de programación funcional --------------------------------------------------
-#################################################################################################################/
-
-
-
+gFS
 
 ########################################################################/
 # FIN TALLER 4 -------------
