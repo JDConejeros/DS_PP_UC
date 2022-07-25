@@ -36,8 +36,8 @@ library(dplyr)
 library(tidyr)
 
 # Extramoe los datos de la cuenta (hay que crearse una cuenta de desarrollador)
-Sys.setenv(SPOTIFY_CLIENT_ID = 'a09106ed23f04ef9aa33a7f565ecaf43')
-Sys.setenv(SPOTIFY_CLIENT_SECRET = 'f2c4441efbff4abea5d7fc2f5e0bb535') # Disponible hasta el próximo taller.
+Sys.setenv(SPOTIFY_CLIENT_ID = '')
+Sys.setenv(SPOTIFY_CLIENT_SECRET = '') # Disponible hasta el próximo taller.
 
 # Generamos token de acceso
 access_token <- get_spotify_access_token()
@@ -59,7 +59,7 @@ playlist_ids <- tibble() # Creamos una tabla vacía para guardar la información
 # Objetivo: obtener información de las canciones de las playlist por generos
 for(g in seq_along(subgeneros$subgenero)){
   
-  out <- search_spotify(q = subgeneros$subgenero[g], type = 'playlist', market = 'US', limit = 20) # Obtengo las playlist para el contexto de USA (US)
+  out <- search_spotify(q = subgeneros$subgenero[g], type = 'playlist', market = 'CL', limit = 20) # Obtengo las playlist para el contexto de USA (US)
   out <- out %>%
     select(name, id) %>% # Selecciono solo el nombre de la canción con su identificador único.
     mutate(subgenero = subgeneros$subgenero[g], # Agregamos una colmuna con el subgenero
