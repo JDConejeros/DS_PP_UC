@@ -49,17 +49,20 @@ Naim Bro & José D. Conejeros
 - :memo:[Código en Colab](https://colab.research.google.com/drive/1Qf0zBOxwMmi9A3y73hKtLcT0Z-AbRyO-#scrollTo=JkbctZ7HcM2L)
 - :bar_chart: [Datos](https://www.dropbox.com/s/4sw1rukgkuw8uey/simce_2016_colegios.rds?dl=0)
 
-
-
 **Fecha: 09-07-2022**
 
+:pushpin:	[Material Adicional `RMarkdown`](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Extra_Rmarkdown)
+
+**Fecha: 23-07-2022**
 
 ## Evaluaciones:
 
-- [Desafío `R`: Enunciado y materiales](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Evaluaciones).
+- [Desafío `R`: Enunciado, materiales y pauta](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Evaluaciones).
 
 - [Proyecto de investigación](https://github.com/JDConejeros/DS_PP_UC/tree/main/APPD/Evaluaciones).
 
+  + Presentación de avance: 23/07/2022
+  + Presentación final: 30/07/2022
 
 ## Links Complementarios
 
