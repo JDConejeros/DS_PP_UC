@@ -1,0 +1,92 @@
+---
+title: "Mi primer documento"
+author: "José Conejeros"
+date: '2022-07-23'
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+fontsize: 15pt
+geometry: left=2cm, right=2cm, top=2.5cm, bottom=2.5cm
+linkcolor: red
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# R Markdown
+
+## Documento
+
+### Armando texto
+
+*This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see* <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+## Listas numeradas
+
+Comidas favoritas:
+
+I. Numeradas
+
+1.  Completos
+2.  Tallarines
+3.  Porotos
+4.  Empanadas
+
+II\. Letras
+
+a.  Completos
+b.  Tallarines
+c.  Porotos
+d.  Empanadas
+
+III\. Otros
+
+-   Completos
+-   Tallarines
+-   Porotos
+-   Empanadas
+
+## Expresiones numéricas
+
+Esto es un texto matemático: $x^2=36$
+
+La formula es así:
+
+$$s=\sqrt{\frac{1}{N-1} \sum_{i=1}^{n} (x_i-\bar{x})^2}$$
+
+## Chunks
+
+```{r cars}
+summary(cars)
+```
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+A=1+1
+B=2+1
+
+A+B
+
+A-B
+```
+
+```{r message=FALSE, warning=FALSE}
+library(dplyr)
+```
+
+## Código en línea
+
+Voy a mostrar una suma: `r round(log(256),2)`
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
